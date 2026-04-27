@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>产品场景图生成器</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; }
+      .container { max-width: 1080px; margin: 24px auto; background: white; border-radius: 16px; padding: 20px; }
+      .grid { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); }
+      .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
+      .full { grid-column: 1 / -1; }
+      input, select, textarea, button { width: 100%; padding: 10px; margin-top: 8px; box-sizing: border-box; }
+      button { background: #1f6fff; color: white; border: none; border-radius: 10px; cursor: pointer; }
+      #gallery { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+      #gallery img { width: 100%; border-radius: 10px; border: 1px solid #ddd; }
+      .muted { color: #666; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>产品场景图生成器（MVP Demo）</h1>
+      <p class="muted">流程：上传产品图 →（可选）上传场景图 → 选择风格与尺寸 → 生成 → 去水印/编辑。</p>
+
+      <div class="grid">
+        <div class="card">
+          <label>产品图（必选）</label>
+          <input id="productFile" type="file" accept="image/*" />
+        </div>
+        <div class="card">
+          <label>场景参考图（可选）</label>
+          <input id="sceneFile" type="file" accept="image/*" />
+        </div>
+        <div class="card">
+          <label>视觉风格</label>
+          <select id="style">
+            <option value="realistic">写实</option>
+            <option value="minimal">极简</option>
+            <option value="luxury">轻奢</option>
+            <option value="tech">科技感</option>
+          </select>
+        </div>
+        <div class="card">
+          <label>场景风格</label>
+          <select id="sceneStyle">
+            <option value="living_room">客厅</option>
+            <option value="kitchen">厨房</option>
+            <option value="office_desk">办公桌</option>
+            <option value="outdoor">户外</option>
+            <option value="cafe">咖啡馆</option>
+          </select>
+        </div>
+        <div class="card">
+          <label>图片尺寸</label>
+          <select id="ratio">
+            <option value="1:1">1:1</option>
+            <option value="4:5">4:5</option>
+            <option value="16:9">16:9</option>
+            <option value="9:16">9:16</option>
+          </select>
+        </div>
+        <div class="card">
+          <label>生成数量</label>
+          <select id="numOutputs">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+          </select>
+        </div>
+
+        <div class="card full">
+          <button id="generateBtn">生成场景图</button>
+          <p id="status" class="muted"></p>
+        </div>
+
+        <div class="card full">
+          <h3>结果</h3>
+          <div id="gallery"></div>
+        </div>
+
+        <div class="card full">
+          <h3>编辑当前图片</h3>
+          <textarea id="editPrompt" rows="3" placeholder="例如：把背景改为现代客厅，暖光氛围"></textarea>
+          <button id="editBtn">编辑最新图片</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
