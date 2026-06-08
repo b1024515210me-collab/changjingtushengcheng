@@ -1,0 +1,108 @@
+<view class="page">
+  <view class="hero card">
+    <view>
+      <text class="eyebrow">CAT TALK MINI</text>
+      <text class="title">喵语沟通翻译器</text>
+      <text class="subtitle">在手机上记录叫声、动作和场景，快速推测猫咪想表达什么。</text>
+    </view>
+    <view class="cat-face">
+      <view class="ear ear-left"></view>
+      <view class="ear ear-right"></view>
+      <view class="eye eye-left"></view>
+      <view class="eye eye-right"></view>
+      <view class="nose"></view>
+    </view>
+  </view>
+
+  <view class="card form-card">
+    <view class="section-heading">
+      <text class="eyebrow">STEP 01</text>
+      <text class="section-title">输入猫咪信号</text>
+    </view>
+
+    <view class="field">
+      <text class="label">猫咪名字</text>
+      <input class="control" value="{{catName}}" maxlength="12" placeholder="例如：饭团" bindinput="onNameInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">叫声类型</text>
+      <picker mode="selector" range="{{soundOptions}}" range-key="label" value="{{soundIndex}}" bindchange="onSoundChange">
+        <view class="picker-control">{{selectedSoundLabel}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">身体语言</text>
+      <picker mode="selector" range="{{bodyOptions}}" range-key="label" value="{{bodyIndex}}" bindchange="onBodyChange">
+        <view class="picker-control">{{selectedBodyLabel}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">当前场景</text>
+      <picker mode="selector" range="{{contextOptions}}" range-key="label" value="{{contextIndex}}" bindchange="onContextChange">
+        <view class="picker-control">{{selectedContextLabel}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">补充描述</text>
+      <textarea class="textarea" value="{{notes}}" placeholder="例如：一直看着空碗、尾巴轻轻抖……" maxlength="120" bindinput="onNotesInput"></textarea>
+    </view>
+
+    <button class="primary-button" bindtap="onTranslate">翻译喵语</button>
+  </view>
+
+  <view class="card result-card {{result.level}}">
+    <view class="section-heading">
+      <text class="eyebrow">STEP 02</text>
+      <text class="section-title">翻译结果</text>
+    </view>
+    <text class="mood-badge">{{result.mood}}</text>
+    <text class="result-title">{{result.title}}</text>
+    <text class="result-message">{{result.message}}</text>
+    <view class="tips">
+      <view class="tip" wx:for="{{result.tips}}" wx:key="*this">
+        <text class="tip-dot">•</text>
+        <text class="tip-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card history-card">
+    <view class="section-heading row-heading">
+      <view>
+        <text class="eyebrow">STEP 03</text>
+        <text class="section-title">今天的喵语记录</text>
+      </view>
+      <button class="ghost-button" bindtap="clearHistory" wx:if="{{history.length}}">清空</button>
+    </view>
+    <text class="empty" wx:if="{{!history.length}}">还没有记录，翻译一次后会自动保存在手机本地。</text>
+    <view class="history-item" wx:for="{{history}}" wx:key="id">
+      <view class="history-meta">
+        <text class="history-name">{{item.catName}}</text>
+        <text class="history-time">{{item.time}}</text>
+      </view>
+      <text class="history-summary">{{item.mood}}｜{{item.title}}</text>
+    </view>
+  </view>
+
+  <view class="guide-grid">
+    <view class="guide-card">
+      <text class="guide-icon">😺</text>
+      <text class="guide-title">友好信号</text>
+      <text class="guide-text">尾巴竖起、慢眨眼、轻蹭通常代表放松和信任。</text>
+    </view>
+    <view class="guide-card">
+      <text class="guide-icon">⚡</text>
+      <text class="guide-title">压力信号</text>
+      <text class="guide-text">耳朵后压、哈气、躲藏或尾巴急甩时，先停止互动。</text>
+    </view>
+    <view class="guide-card">
+      <text class="guide-icon">🩺</text>
+      <text class="guide-title">健康提醒</text>
+      <text class="guide-text">持续嚎叫、拒食、排泄异常或精神差，请及时咨询兽医。</text>
+    </view>
+  </view>
+</view>

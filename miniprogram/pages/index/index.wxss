@@ -1,0 +1,231 @@
+.page {
+  min-height: 100vh;
+  padding: 32rpx 28rpx 56rpx;
+  background:
+    radial-gradient(circle at 0 0, #fde68a 0, transparent 460rpx),
+    radial-gradient(circle at 100% 100%, #fecaca 0, transparent 420rpx),
+    #fff7ed;
+}
+
+.card,
+.guide-card {
+  border: 1rpx solid rgba(194, 65, 12, 0.14);
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 20rpx 60rpx rgba(124, 45, 18, 0.12);
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 42rpx 34rpx;
+  overflow: hidden;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 10rpx;
+  color: #c2410c;
+  font-size: 22rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+}
+
+.title {
+  display: block;
+  max-width: 430rpx;
+  font-size: 58rpx;
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -4rpx;
+}
+
+.subtitle {
+  display: block;
+  max-width: 440rpx;
+  margin-top: 18rpx;
+  color: #7a6357;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.cat-face {
+  position: relative;
+  flex: 0 0 150rpx;
+  width: 150rpx;
+  height: 132rpx;
+  align-self: center;
+  border-radius: 48% 48% 44% 44%;
+  background: #f8fafc;
+  box-shadow: inset 0 -18rpx 0 #fed7aa;
+}
+
+.ear {
+  position: absolute;
+  top: -34rpx;
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 14rpx 0 8rpx;
+  background: #f8fafc;
+  transform: rotate(45deg);
+}
+
+.ear-left { left: 16rpx; }
+.ear-right { right: 16rpx; }
+.eye {
+  position: absolute;
+  top: 52rpx;
+  width: 14rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  background: #2f1f18;
+}
+.eye-left { left: 42rpx; }
+.eye-right { right: 42rpx; }
+.nose {
+  position: absolute;
+  top: 78rpx;
+  left: 50%;
+  width: 18rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #fb7185;
+  transform: translateX(-50%);
+}
+
+.form-card,
+.result-card,
+.history-card {
+  margin-top: 24rpx;
+  padding: 32rpx;
+}
+
+.section-heading { margin-bottom: 24rpx; }
+.row-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.section-title {
+  display: block;
+  color: #2f1f18;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.field { margin-bottom: 24rpx; }
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #7a6357;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+.control,
+.picker-control,
+.textarea {
+  width: 100%;
+  min-height: 92rpx;
+  border: 1rpx solid #fed7aa;
+  border-radius: 24rpx;
+  padding: 24rpx 26rpx;
+  color: #2f1f18;
+  background: #fffaf5;
+  font-size: 28rpx;
+}
+.textarea {
+  height: 170rpx;
+  line-height: 1.55;
+}
+
+.primary-button,
+.ghost-button {
+  margin: 0;
+  border-radius: 999rpx;
+  font-weight: 900;
+}
+.primary-button {
+  width: 100%;
+  color: #ffffff;
+  background: linear-gradient(135deg, #f97316, #c2410c);
+}
+.primary-button::after,
+.ghost-button::after { border: 0; }
+.ghost-button {
+  min-width: 120rpx;
+  padding: 0 24rpx;
+  color: #c2410c;
+  background: #fff7ed;
+  font-size: 24rpx;
+}
+
+.mood-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 18rpx;
+  border-radius: 999rpx;
+  padding: 10rpx 18rpx;
+  color: #c2410c;
+  background: #fed7aa;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.result-card.alert .mood-badge {
+  color: #ffffff;
+  background: #ef4444;
+}
+.result-title {
+  display: block;
+  color: #2f1f18;
+  font-size: 36rpx;
+  font-weight: 900;
+  line-height: 1.38;
+}
+.result-message,
+.tip-text,
+.empty,
+.history-summary,
+.guide-text {
+  color: #7a6357;
+  font-size: 27rpx;
+  line-height: 1.7;
+}
+.result-message { display: block; margin-top: 16rpx; }
+.tips { margin-top: 18rpx; }
+.tip { display: flex; gap: 12rpx; margin-top: 10rpx; }
+.tip-dot { color: #f97316; font-weight: 900; }
+
+.history-item {
+  margin-top: 14rpx;
+  border-radius: 26rpx;
+  padding: 22rpx;
+  background: #fffaf5;
+}
+.history-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+.history-name { color: #c2410c; font-size: 28rpx; font-weight: 900; }
+.history-time { color: #9a7665; font-size: 24rpx; }
+.history-summary { display: block; }
+
+.guide-grid {
+  margin-top: 24rpx;
+}
+.guide-card {
+  margin-top: 18rpx;
+  padding: 28rpx;
+}
+.guide-icon { display: block; font-size: 42rpx; }
+.guide-title {
+  display: block;
+  margin: 10rpx 0 6rpx;
+  color: #2f1f18;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.guide-text { display: block; }

@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "喵语翻译器",
+    "navigationBarBackgroundColor": "#fff7ed",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fff7ed"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
