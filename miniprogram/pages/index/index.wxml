@@ -1,9 +1,9 @@
 <view class="page">
   <view class="hero card">
     <view>
-      <text class="eyebrow">CAT TALK MINI</text>
-      <text class="title">喵语沟通翻译器</text>
-      <text class="subtitle">在手机上记录叫声、动作和场景，快速推测猫咪想表达什么。</text>
+      <text class="eyebrow">CAT TALK LIVE</text>
+      <text class="title">双向喵语翻译器</text>
+      <text class="subtitle">像实时对讲一样：猫叫翻译成中文，人话转换成更温柔的猫叫。</text>
     </view>
     <view class="cat-face">
       <view class="ear ear-left"></view>
@@ -14,10 +14,22 @@
     </view>
   </view>
 
-  <view class="card form-card">
+  <view class="mode-switch card">
+    <button class="mode-tab {{mode === 'catToHuman' ? 'active' : ''}}" data-mode="catToHuman" bindtap="switchMode">猫语 → 中文</button>
+    <button class="mode-tab {{mode === 'humanToCat' ? 'active' : ''}}" data-mode="humanToCat" bindtap="switchMode">人话 → 猫叫</button>
+  </view>
+
+  <view class="card form-card" wx:if="{{mode === 'catToHuman'}}">
     <view class="section-heading">
-      <text class="eyebrow">STEP 01</text>
-      <text class="section-title">输入猫咪信号</text>
+      <text class="eyebrow">LIVE MODE</text>
+      <text class="section-title">实时猫语翻译</text>
+      <text class="section-desc">开始监听后会持续刷新结果；下方选项可作为行为校准，让翻译更贴近当时场景。</text>
+    </view>
+
+    <view class="live-panel {{isListening ? 'listening' : ''}}">
+      <text class="live-wave">{{result.waveform || '▂▃▅▃▂'}}</text>
+      <text class="live-status">{{liveStatus}}</text>
+      <button class="record-button {{isListening ? 'stop' : ''}}" bindtap="toggleCatRealtime">{{isListening ? '停止实时翻译' : '开始实时翻译'}}</button>
     </view>
 
     <view class="field">
@@ -26,14 +38,14 @@
     </view>
 
     <view class="field">
-      <text class="label">叫声类型</text>
+      <text class="label">叫声校准</text>
       <picker mode="selector" range="{{soundOptions}}" range-key="label" value="{{soundIndex}}" bindchange="onSoundChange">
         <view class="picker-control">{{selectedSoundLabel}}</view>
       </picker>
     </view>
 
     <view class="field">
-      <text class="label">身体语言</text>
+      <text class="label">身体语言校准</text>
       <picker mode="selector" range="{{bodyOptions}}" range-key="label" value="{{bodyIndex}}" bindchange="onBodyChange">
         <view class="picker-control">{{selectedBodyLabel}}</view>
       </picker>
@@ -51,15 +63,46 @@
       <textarea class="textarea" value="{{notes}}" placeholder="例如：一直看着空碗、尾巴轻轻抖……" maxlength="120" bindinput="onNotesInput"></textarea>
     </view>
 
-    <button class="primary-button" bindtap="onTranslate">翻译喵语</button>
+    <button class="primary-button" bindtap="onTranslate">用校准信息翻译一次</button>
+  </view>
+
+  <view class="card form-card" wx:if="{{mode === 'humanToCat'}}">
+    <view class="section-heading">
+      <text class="eyebrow">TALK BACK</text>
+      <text class="section-title">人话翻译成猫叫</text>
+      <text class="section-desc">输入你想说的话，选择交流目的，生成更像猫咪沟通节奏的喵语。</text>
+    </view>
+
+    <view class="field">
+      <text class="label">猫咪名字</text>
+      <input class="control" value="{{catName}}" maxlength="12" placeholder="例如：饭团" bindinput="onNameInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">你想表达</text>
+      <picker mode="selector" range="{{humanIntentOptions}}" range-key="label" value="{{humanIntentIndex}}" bindchange="onHumanIntentChange">
+        <view class="picker-control">{{selectedHumanIntentLabel}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">输入人话</text>
+      <textarea class="textarea human-textarea" value="{{humanText}}" placeholder="例如：饭团别怕，我只是想摸摸你。" maxlength="160" bindinput="onHumanTextInput"></textarea>
+    </view>
+
+    <button class="primary-button" bindtap="onHumanTranslate">翻译成猫叫</button>
   </view>
 
   <view class="card result-card {{result.level}}">
-    <view class="section-heading">
-      <text class="eyebrow">STEP 02</text>
-      <text class="section-title">翻译结果</text>
+    <view class="section-heading row-heading">
+      <view>
+        <text class="eyebrow">RESULT</text>
+        <text class="section-title">翻译结果</text>
+      </view>
+      <button class="ghost-button" wx:if="{{result.meowLine}}" bindtap="copyMeow">复制喵语</button>
     </view>
     <text class="mood-badge">{{result.mood}}</text>
+    <text class="meow-line" wx:if="{{result.meowLine}}">{{result.meowLine}}</text>
     <text class="result-title">{{result.title}}</text>
     <text class="result-message">{{result.message}}</text>
     <view class="tips">
@@ -73,15 +116,15 @@
   <view class="card history-card">
     <view class="section-heading row-heading">
       <view>
-        <text class="eyebrow">STEP 03</text>
-        <text class="section-title">今天的喵语记录</text>
+        <text class="eyebrow">LOG</text>
+        <text class="section-title">交流记录</text>
       </view>
       <button class="ghost-button" bindtap="clearHistory" wx:if="{{history.length}}">清空</button>
     </view>
-    <text class="empty" wx:if="{{!history.length}}">还没有记录，翻译一次后会自动保存在手机本地。</text>
+    <text class="empty" wx:if="{{!history.length}}">还没有记录，实时翻译或转换一次后会自动保存在手机本地。</text>
     <view class="history-item" wx:for="{{history}}" wx:key="id">
       <view class="history-meta">
-        <text class="history-name">{{item.catName}}</text>
+        <text class="history-name">{{item.direction}}｜{{item.catName}}</text>
         <text class="history-time">{{item.time}}</text>
       </view>
       <text class="history-summary">{{item.mood}}｜{{item.title}}</text>
@@ -90,14 +133,14 @@
 
   <view class="guide-grid">
     <view class="guide-card">
-      <text class="guide-icon">😺</text>
-      <text class="guide-title">友好信号</text>
-      <text class="guide-text">尾巴竖起、慢眨眼、轻蹭通常代表放松和信任。</text>
+      <text class="guide-icon">🎙️</text>
+      <text class="guide-title">实时翻译</text>
+      <text class="guide-text">把手机靠近猫咪，结合叫声、场景和行为持续推测含义。</text>
     </view>
     <view class="guide-card">
-      <text class="guide-icon">⚡</text>
-      <text class="guide-title">压力信号</text>
-      <text class="guide-text">耳朵后压、哈气、躲藏或尾巴急甩时，先停止互动。</text>
+      <text class="guide-icon">😺</text>
+      <text class="guide-title">猫咪回应</text>
+      <text class="guide-text">猫叫输出建议用轻声读出来，不要突然大声播放或强迫互动。</text>
     </view>
     <view class="guide-card">
       <text class="guide-icon">🩺</text>

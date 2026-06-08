@@ -25,6 +25,23 @@ const contextOptions = [
   { label: '半夜或清晨', value: 'night' }
 ];
 
+const humanIntentOptions = [
+  { label: '打招呼', value: 'hello', meow: '喵～喵', meaning: '我在这里，想温柔靠近你。' },
+  { label: '叫它过来', value: 'come', meow: '喵呜？喵～', meaning: '可以过来看看我吗？这里很安全。' },
+  { label: '安抚它', value: 'comfort', meow: '咕噜咕噜…喵～', meaning: '别害怕，我会慢慢来，不会逼你。' },
+  { label: '邀请玩耍', value: 'play', meow: '咪呀！喵喵！', meaning: '我们来玩一会儿，追追玩具吧。' },
+  { label: '吃饭提醒', value: 'meal', meow: '喵呜——喵！', meaning: '饭饭/水水在这里，可以来看看。' },
+  { label: '表达爱意', value: 'love', meow: '喵～咕噜～喵', meaning: '我喜欢你，想和你待在一起。' }
+];
+
+const liveCatFrames = [
+  { sound: 'short-meow', body: 'tail-up', context: 'petting', waveform: '▂▅▃▆▂', confidence: 72 },
+  { sound: 'chirp', body: 'tail-up', context: 'play', waveform: '▃▆▇▅▃', confidence: 78 },
+  { sound: 'long-meow', body: 'tail-flick', context: 'meal', waveform: '▂▃▇▇▅', confidence: 81 },
+  { sound: 'purr', body: 'slow-blink', context: 'petting', waveform: '▅▅▅▅▅', confidence: 76 },
+  { sound: 'hiss', body: 'ears-flat', context: 'stranger', waveform: '▇▅▂▂▃', confidence: 84 }
+];
+
 const soundMap = {
   'short-meow': { mood: '好奇/打招呼', intent: '可能是在确认你是否注意到它。', weight: 1 },
   'long-meow': { mood: '需求明确', intent: '多半有具体诉求，比如食物、开门或陪伴。', weight: 2 },
@@ -80,6 +97,57 @@ function translateCatSignal({ catName = '', sound, body, context, notes = '' }) 
   };
 }
 
+function translateHumanToCat({ text = '', intent = 'hello', catName = '' }) {
+  const cleanText = text.trim();
+  const detectedIntent = cleanText ? detectHumanIntent(cleanText, intent) : intent;
+  const intentInfo = humanIntentOptions.find((item) => item.value === detectedIntent) || humanIntentOptions[0];
+  const name = catName.trim() || '猫咪';
+  const meowLine = buildMeowLine(cleanText, intentInfo);
+
+  return {
+    mood: '人话转喵语',
+    title: `对${name}说：“${meowLine}”`,
+    message: `这句喵语大概表示：${intentInfo.meaning}`,
+    meowLine,
+    tips: [
+      '用轻柔、偏高一点的声音慢慢说，音量不要突然变大。',
+      '说完后停 3 秒，观察猫咪是否眨眼、靠近、甩尾或躲开。',
+      cleanText ? `你的原句：“${cleanText}”已转换为更短、更温和的猫咪沟通信号。` : '也可以输入你想说的话，我会帮你转换成更贴近猫咪交流节奏的喵语。'
+    ],
+    level: 'calm'
+  };
+}
+
+function createRealtimeCatFrame({ tick = 0, catName = '', notes = '' }) {
+  const frame = liveCatFrames[tick % liveCatFrames.length];
+  const result = translateCatSignal({ catName, notes, sound: frame.sound, body: frame.body, context: frame.context });
+  return {
+    ...result,
+    waveform: frame.waveform,
+    confidence: frame.confidence,
+    liveText: `${frame.waveform} 识别中｜可信度 ${frame.confidence}%`,
+    source: 'live'
+  };
+}
+
+function detectHumanIntent(text, fallback) {
+  if (/爱|喜欢|乖|宝贝|亲/.test(text)) return 'love';
+  if (/玩|逗猫|球|逗猫棒/.test(text)) return 'play';
+  if (/吃|饭|罐头|零食|水/.test(text)) return 'meal';
+  if (/过来|来|这里|抱/.test(text)) return 'come';
+  if (/别怕|没事|乖|安静|放心/.test(text)) return 'comfort';
+  if (/你好|早|晚安|回来/.test(text)) return 'hello';
+  return fallback;
+}
+
+function buildMeowLine(text, intentInfo) {
+  const length = text.length;
+  if (!text) return intentInfo.meow;
+  if (length > 18) return `${intentInfo.meow} 喵呜～喵`;
+  if (/[!！?？]/.test(text)) return `${intentInfo.meow}？`;
+  return intentInfo.meow;
+}
+
 function buildCatQuote(sound, body, context) {
   if (sound === 'hiss' || body === 'ears-flat' || body === 'hiding') return '我现在有点害怕，先别靠太近。';
   if (context === 'meal') return '铲屎官，饭碗好像需要检查一下。';
@@ -93,5 +161,8 @@ module.exports = {
   soundOptions,
   bodyOptions,
   contextOptions,
-  translateCatSignal
+  humanIntentOptions,
+  translateCatSignal,
+  translateHumanToCat,
+  createRealtimeCatFrame
 };

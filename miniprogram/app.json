@@ -9,5 +9,10 @@
     "backgroundColor": "#fff7ed"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.record": {
+      "desc": "用于实时监听猫咪叫声并在本地生成翻译结果"
+    }
+  }
 }
