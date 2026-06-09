@@ -10,6 +10,8 @@ test('mini program exposes three switchable interaction screens', () => {
   assert.match(wxml, /data-tab="humanToCat"/);
   assert.match(wxml, /data-tab="myCat"/);
   assert.match(wxml, /我的咪/);
+  assert.match(wxml, /cat-art/);
+  assert.match(wxml, /profile-card/);
 });
 
 test('both translation screens support press-to-record realtime translation', () => {

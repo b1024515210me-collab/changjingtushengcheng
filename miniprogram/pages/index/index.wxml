@@ -19,7 +19,21 @@
 
       <view class="cat-stage">
         <view class="cat-illustration">
-          <text class="cat-emoji">🐱</text>
+          <view class="cat-art cat-art-large">
+            <view class="cat-tail"></view>
+            <view class="cat-body"></view>
+            <view class="cat-head">
+              <view class="cat-ear cat-ear-left"></view>
+              <view class="cat-ear cat-ear-right"></view>
+              <view class="cat-stripe stripe-one"></view>
+              <view class="cat-stripe stripe-two"></view>
+              <view class="cat-eye cat-eye-left"></view>
+              <view class="cat-eye cat-eye-right"></view>
+              <view class="cat-muzzle"></view>
+              <view class="cat-nose"></view>
+            </view>
+            <view class="cat-bell">●</view>
+          </view>
           <text class="sound-mark left">〰</text>
           <text class="sound-mark right">〰</text>
           <text class="heart h1">♥</text>
@@ -139,7 +153,21 @@
 
     <view class="profile-card">
       <view class="avatar-ring">
-        <text class="avatar-cat">🐱</text>
+        <view class="cat-art cat-art-avatar">
+          <view class="cat-tail"></view>
+          <view class="cat-body"></view>
+          <view class="cat-head">
+            <view class="cat-ear cat-ear-left"></view>
+            <view class="cat-ear cat-ear-right"></view>
+            <view class="cat-stripe stripe-one"></view>
+            <view class="cat-stripe stripe-two"></view>
+            <view class="cat-eye cat-eye-left"></view>
+            <view class="cat-eye cat-eye-right"></view>
+            <view class="cat-muzzle"></view>
+            <view class="cat-nose"></view>
+          </view>
+          <view class="cat-bell">●</view>
+        </view>
       </view>
       <view class="profile-info">
         <view class="name-row">
@@ -161,7 +189,7 @@
       </view>
       <text class="growth-title">{{catProfile.age}}大啦！</text>
       <text class="growth-sub">{{catName}}正在健康快乐地成长～</text>
-      <text class="growth-cat">🐈🧶</text>
+      <view class="growth-visual"><text class="growth-cat">🐈</text><text class="yarn">🧶</text></view>
     </view>
 
     <view class="profile-grid">
