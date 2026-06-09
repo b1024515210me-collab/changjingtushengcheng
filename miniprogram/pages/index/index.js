@@ -3,33 +3,52 @@ const {
   bodyOptions,
   contextOptions,
   humanIntentOptions,
+  catQuickPhrases,
+  humanQuickPhrases,
   translateCatSignal,
   translateHumanToCat,
-  createRealtimeCatFrame
+  createRealtimeCatFrame,
+  createRealtimeHumanFrame
 } = require('../../utils/translator');
 
 const STORAGE_KEY = 'catTalkHistory';
-const LIVE_INTERVAL = 1600;
-const initialResult = {
-  mood: '等待翻译',
-  title: '选择一种交流模式吧',
-  message: '可以实时把猫叫翻译成中文，也可以把你想说的话翻译成猫叫。',
-  tips: ['实时翻译是基于声音时长、沟通场景和行为信号的规则推测，不替代兽医诊断。', '若持续嚎叫、排泄异常、拒食或精神差，请及时就医。'],
-  level: 'calm'
+const LIVE_INTERVAL = 1500;
+const defaultCatName = '点点';
+const initialCatResult = {
+  mood: '等待录音',
+  title: '按住录音，翻译猫咪说的话',
+  message: '松开翻译，听懂喵喵的心声～',
+  tips: ['把手机靠近猫咪，结合场景和行为进行本地推测。', '持续嚎叫、排泄异常、拒食或精神差，请及时就医。'],
+  level: 'calm',
+  waveform: '▂▃▅▃▂'
+};
+const initialHumanResult = {
+  mood: '等待录音',
+  title: '按住录音，把你想说的话翻译成咪语',
+  message: '也可以输入文字或点击快捷句，生成猫咪更容易接受的咪语～',
+  tips: ['用轻柔、偏高一点的声音慢慢说。', '说完后停 3 秒，观察猫咪是否愿意靠近。'],
+  level: 'calm',
+  waveform: '▂▃▅▃▂'
 };
 
 Page({
   liveTimer: null,
   recorderManager: null,
   liveTick: 0,
+  recordingMode: '',
 
   data: {
-    mode: 'catToHuman',
-    catName: '',
+    activeTab: 'catToHuman',
+    catName: defaultCatName,
     notes: '',
     humanText: '',
-    isListening: false,
-    liveStatus: '点击开始后，把手机靠近猫咪，系统会持续滚动翻译。',
+    humanTextCount: 0,
+    catResult: initialCatResult,
+    humanResult: initialHumanResult,
+    isCatRecording: false,
+    isHumanRecording: false,
+    catLiveStatus: '按住录音，翻译猫咪说的话',
+    humanLiveStatus: '按住录音，把人话翻译成咪语',
     soundIndex: 0,
     bodyIndex: 0,
     contextIndex: 0,
@@ -42,8 +61,20 @@ Page({
     bodyOptions,
     contextOptions,
     humanIntentOptions,
-    result: initialResult,
-    history: []
+    catQuickPhrases,
+    humanQuickPhrases,
+    history: [],
+    catProfile: {
+      name: defaultCatName,
+      gender: '弟弟',
+      birthday: '2026.02.25',
+      age: '3个月',
+      breed: '中华田园猫',
+      weight: '1.2 kg',
+      vaccine: '未接种',
+      deworm: '未驱虫',
+      lastRecord: '2025.05.25'
+    }
   },
 
   onLoad() {
@@ -51,28 +82,26 @@ Page({
     this.recorderManager = wx.getRecorderManager ? wx.getRecorderManager() : null;
     if (this.recorderManager) {
       this.recorderManager.onError(() => {
-        this.setData({ liveStatus: '麦克风不可用或未授权，仍可用下方校准信息手动翻译。' });
+        this.setData({ catLiveStatus: '麦克风不可用或未授权，请检查权限后重试。', humanLiveStatus: '麦克风不可用或未授权，请检查权限后重试。' });
       });
     }
     this.setData({ history });
   },
 
   onUnload() {
-    this.stopCatRealtime();
+    this.stopRecording();
   },
 
-  switchMode(event) {
-    const mode = event.currentTarget.dataset.mode;
-    if (mode === this.data.mode) return;
-    if (this.data.isListening) this.stopCatRealtime();
-    this.setData({
-      mode,
-      result: mode === 'catToHuman' ? initialResult : translateHumanToCat({ catName: this.data.catName, intent: humanIntentOptions[this.data.humanIntentIndex].value })
-    });
+  switchTab(event) {
+    const activeTab = event.currentTarget.dataset.tab;
+    if (activeTab === this.data.activeTab) return;
+    this.stopRecording();
+    this.setData({ activeTab });
   },
 
   onNameInput(event) {
-    this.setData({ catName: event.detail.value });
+    const catName = event.detail.value || defaultCatName;
+    this.setData({ catName, 'catProfile.name': catName });
   },
 
   onNotesInput(event) {
@@ -80,7 +109,7 @@ Page({
   },
 
   onHumanTextInput(event) {
-    this.setData({ humanText: event.detail.value });
+    this.setData({ humanText: event.detail.value, humanTextCount: event.detail.value.length });
   },
 
   onSoundChange(event) {
@@ -100,76 +129,124 @@ Page({
 
   onHumanIntentChange(event) {
     const humanIntentIndex = Number(event.detail.value);
+    this.setHumanIntent(humanIntentIndex);
+  },
+
+  onHumanIntentTap(event) {
+    const humanIntentIndex = Number(event.currentTarget.dataset.index);
+    this.setHumanIntent(humanIntentIndex);
+  },
+
+  setHumanIntent(humanIntentIndex) {
     this.setData({ humanIntentIndex, selectedHumanIntentLabel: humanIntentOptions[humanIntentIndex].label });
   },
 
-  toggleCatRealtime() {
-    if (this.data.isListening) {
-      this.stopCatRealtime();
-      return;
-    }
-    this.startCatRealtime();
+  startCatRecording() {
+    this.startRecording('cat');
   },
 
-  startCatRealtime() {
+  startHumanRecording() {
+    this.startRecording('human');
+  },
+
+  startRecording(mode) {
+    this.stopRecording();
+    this.recordingMode = mode;
     this.liveTick = 0;
-    this.setData({ isListening: true, liveStatus: '正在实时监听猫咪声音…' });
+    if (mode === 'cat') {
+      this.setData({ isCatRecording: true, catLiveStatus: '正在听猫咪说话…松开后保留最新翻译' });
+    } else {
+      this.setData({ isHumanRecording: true, humanLiveStatus: '正在听你说话…松开后保留最新咪语' });
+    }
     if (this.recorderManager) {
       this.recorderManager.start({ duration: 600000, sampleRate: 16000, numberOfChannels: 1, encodeBitRate: 48000, format: 'mp3' });
     }
-    this.pushLiveFrame();
-    this.liveTimer = setInterval(() => this.pushLiveFrame(), LIVE_INTERVAL);
+    this.pushRealtimeFrame();
+    this.liveTimer = setInterval(() => this.pushRealtimeFrame(), LIVE_INTERVAL);
   },
 
-  stopCatRealtime() {
+  stopRecording() {
     if (this.liveTimer) {
       clearInterval(this.liveTimer);
       this.liveTimer = null;
     }
     if (this.recorderManager) this.recorderManager.stop();
-    this.setData({ isListening: false, liveStatus: '已停止监听。可以再次点击开始，或用下方手动校准翻译。' });
+    if (this.recordingMode === 'cat') {
+      this.setData({ isCatRecording: false, catLiveStatus: '翻译完成，可再次按住录音。' });
+    }
+    if (this.recordingMode === 'human') {
+      this.setData({ isHumanRecording: false, humanLiveStatus: '翻译完成，可再次按住录音。' });
+    }
+    this.recordingMode = '';
   },
 
-  pushLiveFrame() {
-    const result = createRealtimeCatFrame({ tick: this.liveTick, catName: this.data.catName, notes: this.data.notes });
-    this.liveTick += 1;
-    this.setData({ result, liveStatus: result.liveText });
-    this.addHistory('猫语→中文', result);
+  pushRealtimeFrame() {
+    if (this.recordingMode === 'cat') {
+      const catResult = createRealtimeCatFrame({ tick: this.liveTick, catName: this.data.catName, notes: this.data.notes });
+      this.liveTick += 1;
+      this.setData({ catResult, catLiveStatus: catResult.liveText });
+      this.addHistory('咪语→人话', catResult);
+      return;
+    }
+    if (this.recordingMode === 'human') {
+      const humanResult = createRealtimeHumanFrame({ tick: this.liveTick, catName: this.data.catName });
+      this.liveTick += 1;
+      this.setData({ humanResult, humanText: humanResult.recognizedText, humanTextCount: humanResult.recognizedText.length, humanLiveStatus: humanResult.liveText });
+      this.addHistory('人话→咪语', humanResult);
+    }
   },
 
-  onTranslate() {
+  translateCatWithSettings() {
     const { catName, notes, soundIndex, bodyIndex, contextIndex } = this.data;
-    const result = translateCatSignal({
+    const catResult = translateCatSignal({
       catName,
       notes,
       sound: soundOptions[soundIndex].value,
       body: bodyOptions[bodyIndex].value,
       context: contextOptions[contextIndex].value
     });
-    this.setData({ result });
-    this.addHistory('猫语→中文', result);
+    this.setData({ catResult });
+    this.addHistory('咪语→人话', catResult);
   },
 
-  onHumanTranslate() {
+  translateHumanText() {
     const { catName, humanText, humanIntentIndex } = this.data;
-    const result = translateHumanToCat({
+    const humanResult = translateHumanToCat({
       catName,
       text: humanText,
       intent: humanIntentOptions[humanIntentIndex].value
     });
-    this.setData({ result });
-    this.addHistory('人话→猫叫', result);
+    this.setData({ humanResult });
+    this.addHistory('人话→咪语', humanResult);
+  },
+
+  useCatQuickPhrase(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const phrase = catQuickPhrases[index];
+    if (!phrase) return;
+    const catResult = translateCatSignal({ catName: this.data.catName, sound: phrase.sound, body: phrase.body, context: phrase.context, notes: phrase.text });
+    this.setData({ catResult, notes: phrase.text });
+    this.addHistory('咪语→人话', catResult);
+  },
+
+  useHumanQuickPhrase(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const phrase = humanQuickPhrases[index];
+    if (!phrase) return;
+    const humanResult = translateHumanToCat({ catName: this.data.catName, text: phrase.text, intent: phrase.intent });
+    this.setData({ humanText: phrase.text, humanTextCount: phrase.text.length, humanResult });
+    this.addHistory('人话→咪语', humanResult);
   },
 
   copyMeow() {
-    if (!this.data.result.meowLine) return;
-    wx.setClipboardData({ data: this.data.result.meowLine });
+    if (!this.data.humanResult.meowLine) return;
+    wx.setClipboardData({ data: this.data.humanResult.meowLine });
   },
 
   addHistory(direction, result) {
     const historyItem = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      catName: this.data.catName.trim() || '猫咪',
+      catName: this.data.catName.trim() || defaultCatName,
       direction,
       title: result.title,
       mood: result.mood,
