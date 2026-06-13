@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>喵语沟通翻译器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-card" aria-labelledby="app-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Cat Talk Translator</p>
+          <h1 id="app-title">喵语沟通翻译器</h1>
+          <p class="hero-text">记录猫咪的叫声、尾巴、耳朵和场景，快速推测它现在想表达什么，并得到更温柔的回应建议。</p>
+          <div class="hero-actions">
+            <a href="#translator" class="primary-link">开始翻译</a>
+            <a href="#guide" class="secondary-link">查看沟通指南</a>
+          </div>
+        </div>
+        <div class="cat-orbit" aria-hidden="true">
+          <div class="cat-face">
+            <span class="ear left"></span>
+            <span class="ear right"></span>
+            <span class="eye left"></span>
+            <span class="eye right"></span>
+            <span class="nose"></span>
+            <span class="whisker w1"></span>
+            <span class="whisker w2"></span>
+            <span class="whisker w3"></span>
+            <span class="whisker w4"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="translator-grid" id="translator">
+        <form class="panel translator-panel" id="translator-form">
+          <div class="panel-heading">
+            <p class="eyebrow">Step 01</p>
+            <h2>输入猫咪信号</h2>
+          </div>
+
+          <label>
+            猫咪名字
+            <input id="cat-name" name="catName" type="text" placeholder="例如：饭团" maxlength="12" />
+          </label>
+
+          <label>
+            叫声类型
+            <select id="sound" name="sound">
+              <option value="short-meow">短促喵一声</option>
+              <option value="long-meow">拉长的喵呜</option>
+              <option value="purr">呼噜呼噜</option>
+              <option value="chirp">咯咯/啾啾叫</option>
+              <option value="hiss">哈气或低吼</option>
+              <option value="silent">不叫但一直盯着你</option>
+            </select>
+          </label>
+
+          <label>
+            身体语言
+            <select id="body" name="body">
+              <option value="tail-up">尾巴竖起，尾尖微弯</option>
+              <option value="tail-flick">尾巴快速甩动</option>
+              <option value="slow-blink">慢慢眨眼</option>
+              <option value="ears-flat">耳朵后压</option>
+              <option value="kneading">踩奶/蹭人</option>
+              <option value="hiding">躲起来或压低身体</option>
+            </select>
+          </label>
+
+          <label>
+            当前场景
+            <select id="context" name="context">
+              <option value="meal">饭点前后</option>
+              <option value="play">拿玩具或你刚回家</option>
+              <option value="petting">被抚摸或靠近你</option>
+              <option value="litter">猫砂盆附近</option>
+              <option value="stranger">陌生人/新环境</option>
+              <option value="night">半夜或清晨</option>
+            </select>
+          </label>
+
+          <label>
+            补充描述
+            <textarea id="notes" name="notes" placeholder="例如：一直看着空碗、尾巴轻轻抖、蹭我的腿……" rows="4"></textarea>
+          </label>
+
+          <button type="submit">翻译喵语</button>
+        </form>
+
+        <aside class="panel result-panel" aria-live="polite">
+          <div class="panel-heading">
+            <p class="eyebrow">Step 02</p>
+            <h2>翻译结果</h2>
+          </div>
+          <div class="result-card" id="result-card">
+            <div class="mood-badge" id="mood-badge">等待翻译</div>
+            <h3 id="result-title">先告诉我猫咪发生了什么吧</h3>
+            <p id="result-message">选择叫声、身体语言和场景后，我会帮你生成一个“可能含义 + 回应方式”。</p>
+            <ul id="result-tips">
+              <li>猫咪翻译是行为推测，不替代兽医诊断。</li>
+              <li>若持续嚎叫、排泄异常、拒食或精神差，请及时就医。</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-heading">
+          <p class="eyebrow">Step 03</p>
+          <h2>今天的喵语记录</h2>
+        </div>
+        <div id="history-list" class="history-list">
+          <p class="empty-state">还没有记录，翻译一次后会自动保存到这里。</p>
+        </div>
+      </section>
+
+      <section class="guide-grid" id="guide">
+        <article class="guide-card">
+          <span>😺</span>
+          <h3>友好信号</h3>
+          <p>尾巴竖起、慢眨眼、轻蹭通常代表放松和信任。你可以轻声回应并给予选择权。</p>
+        </article>
+        <article class="guide-card">
+          <span>⚡</span>
+          <h3>压力信号</h3>
+          <p>耳朵后压、哈气、躲藏或尾巴急甩，可能是在说“我需要距离”。先停止互动。</p>
+        </article>
+        <article class="guide-card">
+          <span>🩺</span>
+          <h3>健康提醒</h3>
+          <p>突然频繁叫、排泄姿势异常、食欲下降或行为剧变，建议尽快咨询兽医。</p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
